@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Reports</h1>
+    <p class="page-subtitle">Semester performance analytics</p>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <button onclick="window.print()" class="btn-ghost-sm"><i class="fa-solid fa-print"></i> Print</button>
+    <a href="{{ url_for('at_risk') }}" class="btn-danger-sm"><i class="fa-solid fa-triangle-exclamation"></i> View At-Risk</a>
+  </div>
+</div>
+
+<!-- Summary cards -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Total Students</span>
+      <div class="stat-icon-wrap stat-icon-blue"><i class="fa-solid fa-users"></i></div>
+    </div>
+    <div class="stat-value">{{ total if total else 0 }}</div>
+    <div class="stat-meta">All enrolled students</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">At Risk</span>
+      <div class="stat-icon-wrap stat-icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    </div>
+    <div class="stat-value stat-value-red">{{ at_risk if at_risk else 0 }}</div>
+    <div class="stat-meta">{% if total and total > 0 %}{{ (at_risk/total*100)|round|int }}{% else %}0{% endif %}% risk rate</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Safe Students</span>
+      <div class="stat-icon-wrap stat-icon-green"><i class="fa-solid fa-circle-check"></i></div>
+    </div>
+    <div class="stat-value stat-value-green">{{ safe if safe else 0 }}</div>
+    <div class="stat-meta">Performing well</div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-row">
+  <div class="card chart-card">
+    <div class="card-header"><h2 class="card-title">Risk Distribution</h2></div>
+    <div class="card-body pie-wrap">
+      <canvas id="reportPie" width="220" height="220"></canvas>
+      <div class="pie-legend">
+        <div class="pie-legend-item"><span class="legend-dot red"></span><span>At Risk: <strong>{% if total and total > 0 %}{{ (at_risk/total*100)|round|int }}{% else %}0{% endif %}%</strong></span></div>
+        <div class="pie-legend-item"><span class="legend-dot green"></span><span>Safe: <strong>{% if total and total > 0 %}{{ (safe/total*100)|round|int }}{% else %}0{% endif %}%</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card chart-card chart-card-wide">
+    <div class="card-header"><h2 class="card-title">At-Risk by Subject</h2></div>
+    <div class="card-body">
+      {% if subject_data %}
+        {% for code, data in subject_data.items() %}
+        <div class="subject-bar-row">
+          <span class="subject-code-label">{{ code }}</span>
+          <div class="subject-bar-bg">
+            <div class="subject-bar-fill {% if (data.at_risk/data.total*100)|int > 30 %}bar-red{% endif %}" style="width:{{ (data.at_risk/data.total*100)|round|int if data.total > 0 else 0 }}%"></div>
+          </div>
+          <span class="subject-bar-stat">{{ data.at_risk }}/{{ data.total }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        {% for code,ar,tot in [('ICT201',4,30),('MBA909',7,28),('BUS100',2,32),('TSL700',9,30)] %}
+        <div class="subject-bar-row">
+          <span class="subject-code-label">{{ code }}</span>
+          <div class="subject-bar-bg">
+            <div class="subject-bar-fill {% if (ar/tot*100)|int > 25 %}bar-red{% endif %}" style="width:{{ (ar/tot*100)|round|int }}%"></div>
+          </div>
+          <span class="subject-bar-stat">{{ ar }}/{{ tot }}</span>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Reason breakdown -->
+<div class="card">
+  <div class="card-header"><h2 class="card-title">Risk Reason Breakdown</h2></div>
+  <div class="card-body">
+    <div class="reason-grid">
+      <div class="reason-item">
+        <div class="reason-icon r-amber"><i class="fa-solid fa-calendar-xmark"></i></div>
+        <div class="reason-body">
+          <div class="reason-val">{{ reason_attendance if reason_attendance else 8 }}</div>
+          <div class="reason-name">Low Attendance</div>
+          <div class="reason-bar-bg"><div class="reason-bar-fill r-fill-amber" style="width:{{ (reason_attendance/at_risk*100)|round|int if at_risk else 36 }}%"></div></div>
+        </div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-icon r-purple"><i class="fa-solid fa-chalkboard-user"></i></div>
+        <div class="reason-body">
+          <div class="reason-val">{{ reason_tutorial if reason_tutorial else 7 }}</div>
+          <div class="reason-name">Low Tutorials</div>
+          <div class="reason-bar-bg"><div class="reason-bar-fill r-fill-purple" style="width:{{ (reason_tutorial/at_risk*100)|round|int if at_risk else 32 }}%"></div></div>
+        </div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-icon r-red"><i class="fa-solid fa-file-circle-xmark"></i></div>
+        <div class="reason-body">
+          <div class="reason-val">{{ reason_assessment if reason_assessment else 5 }}</div>
+          <div class="reason-name">Missing Assessment</div>
+          <div class="reason-bar-bg"><div class="reason-bar-fill r-fill-red" style="width:{{ (reason_assessment/at_risk*100)|round|int if at_risk else 23 }}%"></div></div>
+        </div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-icon r-orange"><i class="fa-solid fa-layer-group"></i></div>
+        <div class="reason-body">
+          <div class="reason-val">{{ reason_multiple if reason_multiple else 2 }}</div>
+          <div class="reason-name">Multiple Flags</div>
+          <div class="reason-bar-bg"><div class="reason-bar-fill r-fill-orange" style="width:{{ (reason_multiple/at_risk*100)|round|int if at_risk else 9 }}%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  const canvas = document.getElementById('reportPie');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const atRisk = {{ (at_risk/total*100)|round|int if total and total > 0 else 18 }};
+  const safe = 100 - atRisk;
+  const cx=110,cy=110,r=90;
+  function drawSlice(ctx,cx,cy,r,s,e,c){ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,e);ctx.closePath();ctx.fillStyle=c;ctx.fill();}
+  const s1=-Math.PI/2, e1=s1+(atRisk/100)*2*Math.PI;
+  drawSlice(ctx,cx,cy,r,s1,e1,'#ef4444');
+  drawSlice(ctx,cx,cy,r,e1,s1+2*Math.PI,'#22c55e');
+  ctx.strokeStyle='#fff';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx,cy-r);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cy);const ex=cx+r*Math.cos(e1),ey=cy+r*Math.sin(e1);ctx.lineTo(ex,ey);ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 12px Poppins,sans-serif';ctx.textAlign='center';
+  const m1=s1+(e1-s1)/2;ctx.fillText('At Risk: '+atRisk+'%',cx+45*Math.cos(m1),cy+45*Math.sin(m1));
+  const m2=e1+(s1+2*Math.PI-e1)/2;ctx.fillText('Safe: '+safe+'%',cx+45*Math.cos(m2),cy+45*Math.sin(m2));
+});
+</script>
+{% endblock %}

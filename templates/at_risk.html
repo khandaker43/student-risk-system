@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}At Risk{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">At Risk Students</h1>
+    <p class="page-subtitle">Students requiring immediate academic intervention</p>
+  </div>
+  <a href="{{ url_for('report') }}" class="btn-danger-outline"><i class="fa-solid fa-file-export"></i> Export Report</a>
+</div>
+
+<!-- Alert banner -->
+<div class="risk-banner">
+  <div class="risk-banner-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+  <div class="risk-banner-text">
+    <strong>Intervention Required</strong>
+    <span>The following students have been flagged based on attendance, tutorial performance, and assessment completion.</span>
+  </div>
+  <div class="risk-banner-count">
+    <span class="risk-count-num">{{ at_risk_students|length if at_risk_students else 5 }}</span>
+    <span class="risk-count-label">Flagged</span>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+  <div class="search-box">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" id="riskSearch" placeholder="Search at-risk students...">
+  </div>
+  <select id="reasonFilter" class="filter-select">
+    <option value="all">All Reasons</option>
+    <option value="Low Attendance">Low Attendance</option>
+    <option value="Low Tutorials">Low Tutorials</option>
+    <option value="Missing Assessment">Missing Assessment</option>
+    <option value="Multiple Flags">Multiple Flags</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="data-table" id="riskTable">
+      <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>Full Name</th>
+          <th>Subject</th>
+          <th>Attendance</th>
+          <th>Tutorials</th>
+          <th>Assessment</th>
+          <th>Risk Reason</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if at_risk_students %}
+          {% for s in at_risk_students %}
+          <tr data-reason="{{ s.reason }}">
+            <td class="td-id">{{ s.id }}</td>
+            <td class="td-name">{{ s.name }}</td>
+            <td><span class="subject-badge">{{ s.subject }}</span></td>
+            <td>
+              <div class="score-wrap">
+                <span class="{% if s.attendance < 80 %}score-bad{% endif %}">{{ s.attendance }}%</span>
+                <div class="score-bar"><div class="score-fill fill-red" style="width:{{ s.attendance }}%"></div></div>
+              </div>
+            </td>
+            <td>
+              <div class="score-wrap">
+                <span class="{% if s.tutorials < 50 %}score-bad{% endif %}">{{ s.tutorials }}</span>
+                <div class="score-bar"><div class="score-fill fill-red" style="width:{{ s.tutorials }}%"></div></div>
+              </div>
+            </td>
+            <td><span class="assess-tag assess-bad">{{ s.assessment }}</span></td>
+            <td><span class="reason-tag reason-{{ s.reason|lower|replace(' ','-') }}"><i class="fa-solid fa-flag"></i> {{ s.reason }}</span></td>
+            <td class="action-btns">
+              <button class="tbl-btn" title="Send alert"><i class="fa-solid fa-envelope"></i></button>
+              <button class="tbl-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          {% for sid,name,subj,att,tut,assess,reason in [
+            ('KOI-001','Emma Johnson','ICT201',45,40,'Not Done','Multiple Flags'),
+            ('KOI-003','Liam Patel','BUS100',62,44,'Done','Low Tutorials'),
+            ('KOI-005','Chen Wei','ICT201',71,40,'Not Done','Missing Assessment'),
+            ('KOI-006','Olivia Brown','BUS100',55,62,'Not Done','Low Attendance'),
+            ('KOI-008','Ethan Martinez','MBA909',48,55,'Done','Low Attendance')
+          ] %}
+          <tr data-reason="{{ reason }}">
+            <td class="td-id">{{ sid }}</td>
+            <td class="td-name">{{ name }}</td>
+            <td><span class="subject-badge">{{ subj }}</span></td>
+            <td>
+              <div class="score-wrap">
+                <span class="score-bad">{{ att }}%</span>
+                <div class="score-bar"><div class="score-fill fill-red" style="width:{{ att }}%"></div></div>
+              </div>
+            </td>
+            <td>
+              <div class="score-wrap">
+                <span class="{% if tut < 50 %}score-bad{% endif %}">{{ tut }}</span>
+                <div class="score-bar"><div class="score-fill fill-red" style="width:{{ tut }}%"></div></div>
+              </div>
+            </td>
+            <td><span class="assess-tag {% if assess == 'Not Done' %}assess-bad{% endif %}">{{ assess }}</span></td>
+            <td><span class="reason-tag reason-{{ reason|lower|replace(' ','-') }}"><i class="fa-solid fa-flag"></i> {{ reason }}</span></td>
+            <td class="action-btns">
+              <button class="tbl-btn" title="Send alert"><i class="fa-solid fa-envelope"></i></button>
+              <button class="tbl-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+            </td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+  <div class="table-footer">
+    <span class="table-info" id="riskInfo">Showing all at-risk students</span>
+  </div>
+</div>
+{% endblock %}

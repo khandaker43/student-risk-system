@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Students</h1>
+    <p class="page-subtitle">All enrolled student records</p>
+  </div>
+  <a href="{{ url_for('upload') }}" class="btn-primary"><i class="fa-solid fa-plus"></i> Upload New</a>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+  <div class="search-box">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" id="tableSearch" placeholder="Search by name or ID...">
+  </div>
+  <select id="statusFilter" class="filter-select">
+    <option value="all">All Statuses</option>
+    <option value="at-risk">At Risk</option>
+    <option value="safe">Safe</option>
+  </select>
+  <select id="subjectFilter" class="filter-select">
+    <option value="all">All Subjects</option>
+    <option value="ICT201">ICT201</option>
+    <option value="MBA909">MBA909</option>
+    <option value="BUS100">BUS100</option>
+    <option value="TSL700">TSL700</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="data-table" id="resultsTable">
+      <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>Full Name</th>
+          <th>Subject</th>
+          <th>Attendance</th>
+          <th>Tutorials</th>
+          <th>Assessment</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if students %}
+          {% for s in students %}
+          <tr data-status="{% if s.status == 'At Risk' %}at-risk{% else %}safe{% endif %}" data-subject="{{ s.subject }}">
+            <td class="td-id">{{ s.id }}</td>
+            <td class="td-name">{{ s.name }}</td>
+            <td><span class="subject-badge">{{ s.subject }}</span></td>
+            <td>
+              <div class="score-wrap">
+                <span class="{% if s.attendance < 80 %}score-bad{% endif %}">{{ s.attendance }}%</span>
+                <div class="score-bar"><div class="score-fill {% if s.attendance < 80 %}fill-red{% endif %}" style="width:{{ s.attendance }}%"></div></div>
+              </div>
+            </td>
+            <td>
+              <div class="score-wrap">
+                <span class="{% if s.tutorials < 50 %}score-bad{% endif %}">{{ s.tutorials }}</span>
+                <div class="score-bar"><div class="score-fill {% if s.tutorials < 50 %}fill-red{% endif %}" style="width:{{ s.tutorials }}%"></div></div>
+              </div>
+            </td>
+            <td><span class="assess-tag {% if s.assessment == 'Not Done' %}assess-bad{% endif %}">{{ s.assessment }}</span></td>
+            <td>
+              <span class="status-pill {% if s.status == 'At Risk' %}pill-risk{% else %}pill-safe{% endif %}">
+                {% if s.status == 'At Risk' %}<i class="fa-solid fa-triangle-exclamation"></i>{% else %}<i class="fa-solid fa-circle-check"></i>{% endif %}
+                {{ s.status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <!-- demo rows -->
+          {% for sid,name,subj,att,tut,assess,status in [
+            ('KOI-001','Emma Johnson','ICT201',45,40,'Not Done','At Risk'),
+            ('KOI-002','Sara Nguyen','MBA909',91,78,'Done','Safe'),
+            ('KOI-003','Liam Patel','BUS100',62,44,'Done','At Risk'),
+            ('KOI-004','Amira Hassan','TSL700',88,70,'Done','Safe'),
+            ('KOI-005','Chen Wei','ICT201',71,40,'Not Done','At Risk'),
+            ('KOI-006','Olivia Brown','BUS100',55,62,'Not Done','At Risk'),
+            ('KOI-007','James Okafor','MBA909',82,73,'Done','Safe'),
+            ('KOI-008','Ethan Martinez','MBA909',48,55,'Done','At Risk')
+          ] %}
+          <tr data-status="{% if status == 'At Risk' %}at-risk{% else %}safe{% endif %}" data-subject="{{ subj }}">
+            <td class="td-id">{{ sid }}</td>
+            <td class="td-name">{{ name }}</td>
+            <td><span class="subject-badge">{{ subj }}</span></td>
+            <td>
+              <div class="score-wrap">
+                <span class="{% if att < 80 %}score-bad{% endif %}">{{ att }}%</span>
+                <div class="score-bar"><div class="score-fill {% if att < 80 %}fill-red{% endif %}" style="width:{{ att }}%"></div></div>
+              </div>
+            </td>
+            <td>
+              <div class="score-wrap">
+                <span class="{% if tut < 50 %}score-bad{% endif %}">{{ tut }}</span>
+                <div class="score-bar"><div class="score-fill {% if tut < 50 %}fill-red{% endif %}" style="width:{{ tut }}%"></div></div>
+              </div>
+            </td>
+            <td><span class="assess-tag {% if assess == 'Not Done' %}assess-bad{% endif %}">{{ assess }}</span></td>
+            <td>
+              <span class="status-pill {% if status == 'At Risk' %}pill-risk{% else %}pill-safe{% endif %}">
+                {% if status == 'At Risk' %}<i class="fa-solid fa-triangle-exclamation"></i>{% else %}<i class="fa-solid fa-circle-check"></i>{% endif %}
+                {{ status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+  <div class="table-footer">
+    <span class="table-info" id="tableInfo">Showing all records</span>
+  </div>
+</div>
+{% endblock %}

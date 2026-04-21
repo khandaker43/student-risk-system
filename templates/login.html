@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KOI System — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-body">
+
+<div class="login-layout">
+  <!-- Left panel -->
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="login-logo"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div>
+        <div class="login-brand-name">KOI System</div>
+        <div class="login-brand-sub">Student At-Risk Management</div>
+      </div>
+    </div>
+    <div class="login-features">
+      <div class="login-feature">
+        <span class="feature-dot"></span>
+        <div>
+          <div class="feature-title">Early Intervention</div>
+          <div class="feature-desc">Identify at-risk students early and take action</div>
+        </div>
+      </div>
+      <div class="login-feature">
+        <span class="feature-dot"></span>
+        <div>
+          <div class="feature-title">Data-Driven Insights</div>
+          <div class="feature-desc">Track attendance, tutorials, and assessment completion</div>
+        </div>
+      </div>
+      <div class="login-feature">
+        <span class="feature-dot"></span>
+        <div>
+          <div class="feature-title">Comprehensive Reports</div>
+          <div class="feature-desc">Visual analytics and performance monitoring</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="login-right">
+    <div class="login-card">
+      <h1 class="login-title">Welcome Back</h1>
+      <p class="login-subtitle">Sign in to access the KOI dashboard</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+          <div class="flash flash-{{ category }}" style="margin-bottom:16px;">
+            <i class="fa-solid fa-circle-xmark"></i> {{ message }}
+          </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('login') }}" class="login-form">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrap">
+            <i class="fa-regular fa-envelope input-icon"></i>
+            <input type="email" name="email" class="form-input" placeholder="admin@koi.edu" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
+          </div>
+        </div>
+        <div class="login-row">
+          <label class="remember-me">
+            <input type="checkbox" name="remember"> Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+        <button type="submit" class="login-btn">Sign In</button>
+        <p class="login-demo">Demo: Use any email and password to login</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

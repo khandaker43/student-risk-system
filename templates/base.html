@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KOI System — {% block title %}Dashboard{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+{% block full_page %}
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div>
+        <div class="brand-name">KOI System</div>
+        <div class="brand-sub">Student At-Risk Management</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <i class="fa-solid fa-gauge"></i><span>Dashboard</span>
+      </a>
+      <a href="{{ url_for('upload') }}" class="nav-item {% if request.endpoint == 'upload' %}active{% endif %}">
+        <i class="fa-solid fa-upload"></i><span>Upload Data</span>
+      </a>
+      <a href="{{ url_for('results') }}" class="nav-item {% if request.endpoint == 'results' %}active{% endif %}">
+        <i class="fa-solid fa-users"></i><span>Students</span>
+      </a>
+      <a href="{{ url_for('at_risk') }}" class="nav-item {% if request.endpoint == 'at_risk' %}active{% endif %}">
+        <i class="fa-solid fa-triangle-exclamation"></i><span>At Risk</span>
+        {% if at_risk_count and at_risk_count > 0 %}<span class="nav-badge">{{ at_risk_count }}</span>{% endif %}
+      </a>
+      <a href="{{ url_for('report') }}" class="nav-item {% if request.endpoint == 'report' %}active{% endif %}">
+        <i class="fa-solid fa-chart-bar"></i><span>Reports</span>
+      </a>
+      <a href="{{ url_for('notifications') }}" class="nav-item {% if request.endpoint == 'notifications' %}active{% endif %}">
+        <i class="fa-solid fa-bell"></i><span>Notifications</span>
+      </a>
+      <a href="{{ url_for('settings') }}" class="nav-item {% if request.endpoint == 'settings' %}active{% endif %}">
+        <i class="fa-solid fa-gear"></i><span>Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+      <div class="user-info">
+        <div class="user-name">Admin User</div>
+        <div class="user-email">admin@koi.edu</div>
+      </div>
+      <a href="#" class="user-logout" title="Sign out"><i class="fa-solid fa-right-from-bracket"></i></a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search students, subjects..." id="globalSearch">
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn"><i class="fa-solid fa-bell"></i><span class="notif-dot"></span></button>
+        <div class="topbar-avatar"><i class="fa-solid fa-user"></i></div>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-wrap">
+          {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">
+            <i class="fa-solid {% if category == 'success' %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+            {{ message }}
+            <button onclick="this.parentElement.remove()" class="flash-close"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="page-wrapper">{% block content %}{% endblock %}</div>
+  </main>
+</div>
+{% endblock %}
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

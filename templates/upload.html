@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Upload Data{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Upload Data</h1>
+    <p class="page-subtitle">Import student records for analysis</p>
+  </div>
+</div>
+
+<div class="upload-center">
+  <div class="card upload-card">
+    <div class="card-header">
+      <h2 class="card-title">Import Student Records</h2>
+      <p class="card-subtitle">Upload a CSV or Excel file to analyse student performance</p>
+    </div>
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <p class="drop-text-main">Drag &amp; drop your file here</p>
+          <p class="drop-text-sub">or click to browse</p>
+          <div class="drop-formats">
+            <span class="format-tag"><i class="fa-solid fa-file-csv"></i> CSV</span>
+            <span class="format-tag"><i class="fa-solid fa-file-excel"></i> XLSX</span>
+          </div>
+          <input type="file" name="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden>
+        </div>
+
+        <div class="file-preview" id="filePreview" style="display:none">
+          <i class="fa-solid fa-file-lines preview-icon"></i>
+          <div class="preview-info">
+            <span id="fileName" class="preview-name"></span>
+            <span id="fileSize" class="preview-size"></span>
+          </div>
+          <button type="button" id="fileRemove" class="preview-remove"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="upload-requirements">
+          <h3><i class="fa-solid fa-circle-info"></i> Required Columns</h3>
+          <div class="req-grid">
+            <div class="req-item"><i class="fa-solid fa-check"></i> Student ID</div>
+            <div class="req-item"><i class="fa-solid fa-check"></i> Student Name</div>
+            <div class="req-item"><i class="fa-solid fa-check"></i> Subject Code</div>
+            <div class="req-item"><i class="fa-solid fa-check"></i> Attendance (%)</div>
+            <div class="req-item"><i class="fa-solid fa-check"></i> Tutorial Score</div>
+            <div class="req-item"><i class="fa-solid fa-check"></i> Assessment Result</div>
+          </div>
+        </div>
+
+        <div class="upload-actions">
+          <button type="submit" class="btn-primary" id="uploadBtn" disabled>
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload &amp; Analyse
+          </button>
+          <a href="{{ url_for('dashboard') }}" class="btn-ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Notifications</h1>
+    <p class="page-subtitle">System alerts and updates</p>
+  </div>
+</div>
+<div class="card">
+  <div class="card-body no-pad">
+    {% for n in notif_list %}
+    <div class="risk-student-row">
+      <div class="risk-icon-wrap" style="background:{% if n.color=='red' %}#fee2e2{% elif n.color=='blue' %}#eff6ff{% elif n.color=='orange' %}#fef3c7{% else %}#dcfce7{% endif %}">
+        <i class="fa-solid {{ n.icon }}" style="color:{% if n.color=='red' %}#ef4444{% elif n.color=='blue' %}#2563eb{% elif n.color=='orange' %}#f59e0b{% else %}#22c55e{% endif %}"></i>
+      </div>
+      <div class="risk-student-info">
+        <div class="risk-student-name">{{ n.text }}</div>
+        <div class="risk-student-meta">{{ n.time }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

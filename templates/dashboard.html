@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Overview of student performance and risk status</p>
+  </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Total Students</span>
+      <div class="stat-icon-wrap stat-icon-blue"><i class="fa-solid fa-users"></i></div>
+    </div>
+    <div class="stat-value">{{ total if total else 0 }}</div>
+    <div class="stat-meta">Enrolled across {{ subject_count if subject_count else 4 }} subjects</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">At Risk Students</span>
+      <div class="stat-icon-wrap stat-icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    </div>
+    <div class="stat-value stat-value-red">{{ at_risk if at_risk else 0 }}</div>
+    <div class="stat-meta">
+      {% if total and total > 0 %}{{ (at_risk / total * 100)|round|int }}{% else %}0{% endif %}% of total students
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Safe Students</span>
+      <div class="stat-icon-wrap stat-icon-green"><i class="fa-solid fa-circle-check"></i></div>
+    </div>
+    <div class="stat-value stat-value-green">{{ safe if safe else 0 }}</div>
+    <div class="stat-meta">
+      {% if total and total > 0 %}{{ (safe / total * 100)|round|int }}{% else %}0{% endif %}% of total students
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="charts-row">
+  <!-- Pie Chart -->
+  <div class="card chart-card">
+    <div class="card-header">
+      <h2 class="card-title">Risk Distribution</h2>
+    </div>
+    <div class="card-body pie-wrap">
+      <canvas id="pieChart" width="220" height="220"></canvas>
+      <div class="pie-legend">
+        <div class="pie-legend-item">
+          <span class="legend-dot red"></span>
+          <span>At Risk: <strong>{% if total and total > 0 %}{{ (at_risk / total * 100)|round|int }}{% else %}0{% endif %}%</strong></span>
+        </div>
+        <div class="pie-legend-item">
+          <span class="legend-dot green"></span>
+          <span>Safe: <strong>{% if total and total > 0 %}{{ (safe / total * 100)|round|int }}{% else %}0{% endif %}%</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subject breakdown -->
+  <div class="card chart-card chart-card-wide">
+    <div class="card-header">
+      <h2 class="card-title">Students by Subject</h2>
+    </div>
+    <div class="card-body">
+      {% if subject_data %}
+        {% for code, data in subject_data.items() %}
+        <div class="subject-bar-row">
+          <span class="subject-code-label">{{ code }}</span>
+          <div class="subject-bar-bg">
+            <div class="subject-bar-fill" style="width:{{ (data.at_risk / data.total * 100)|round|int if data.total > 0 else 0 }}%"></div>
+          </div>
+          <span class="subject-bar-stat">{{ data.at_risk }}/{{ data.total }} at risk</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        {% for code, ar, tot in [('ICT201',4,30),('MBA909',7,28),('BUS100',2,32),('TSL700',9,30)] %}
+        <div class="subject-bar-row">
+          <span class="subject-code-label">{{ code }}</span>
+          <div class="subject-bar-bg">
+            <div class="subject-bar-fill" style="width:{{ (ar/tot*100)|round|int }}%"></div>
+          </div>
+          <span class="subject-bar-stat">{{ ar }}/{{ tot }} at risk</span>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Recent At-Risk Students -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Recent At-Risk Students</h2>
+    <p class="card-subtitle">Students requiring immediate attention</p>
+    <a href="{{ url_for('at_risk') }}" class="view-all-btn">View All</a>
+  </div>
+  <div class="card-body no-pad">
+    {% if recent_at_risk %}
+      {% for s in recent_at_risk[:5] %}
+      <div class="risk-student-row">
+        <div class="risk-icon-wrap"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="risk-student-info">
+          <div class="risk-student-name">{{ s.name }}</div>
+          <div class="risk-student-meta">{{ s.subject }} &bull; {{ s.reason }}</div>
+        </div>
+        <div class="risk-student-scores">
+          <span>Attendance: <strong>{{ s.attendance }}%</strong></span>
+          <span>Tutorials: <strong>{{ s.tutorials }}%</strong></span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      {% for name, subj, reason, att, tut in [
+        ('Emma Johnson','ICT201','Low Attendance, Low Tutorials, Missing Assessment',45,40),
+        ('Olivia Brown','BUS100','Low Attendance, Missing Assessment',55,62),
+        ('Ethan Martinez','MBA909','Low Attendance, Low Tutorials',48,55),
+        ('Mason Rodriguez','TSL700','Low Attendance, Low Tutorials, Missing Assessment',52,48),
+        ('Lucas Walker','MBA909','Low Attendance, Low Tutorials, Missing Assessment',42,38)
+      ] %}
+      <div class="risk-student-row">
+        <div class="risk-icon-wrap"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="risk-student-info">
+          <div class="risk-student-name">{{ name }}</div>
+          <div class="risk-student-meta">{{ subj }} &bull; {{ reason }}</div>
+        </div>
+        <div class="risk-student-scores">
+          <span>Attendance: <strong>{{ att }}%</strong></span>
+          <span>Tutorials: <strong>{{ tut }}%</strong></span>
+        </div>
+      </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+
+<script>
+// Pie chart
+window.addEventListener('load', function() {
+  const canvas = document.getElementById('pieChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const atRisk = {{ (at_risk / total * 100)|round|int if total and total > 0 else 18 }};
+  const safe = 100 - atRisk;
+  const cx = 110, cy = 110, r = 90;
+
+  function drawSlice(ctx, cx, cy, r, startAngle, endAngle, color) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  const start1 = -Math.PI / 2;
+  const end1 = start1 + (atRisk / 100) * 2 * Math.PI;
+  drawSlice(ctx, cx, cy, r, start1, end1, '#ef4444');
+  drawSlice(ctx, cx, cy, r, end1, start1 + 2 * Math.PI, '#22c55e');
+
+  // White gap lines
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx, cy-r); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,cy);
+  const ex = cx + r * Math.cos(end1), ey = cy + r * Math.sin(end1);
+  ctx.lineTo(ex, ey); ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 13px Poppins, sans-serif';
+  ctx.textAlign = 'center';
+  const mid1 = start1 + (end1 - start1) / 2;
+  ctx.fillText('At Risk: '+atRisk+'%', cx + 45*Math.cos(mid1), cy + 45*Math.sin(mid1));
+  const mid2 = end1 + (start1 + 2*Math.PI - end1) / 2;
+  ctx.fillText('Safe: '+safe+'%', cx + 45*Math.cos(mid2), cy + 45*Math.sin(mid2));
+});
+</script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Settings</h1>
+    <p class="page-subtitle">System configuration</p>
+  </div>
+</div>
+<div class="card">
+  <div class="card-header"><h2 class="card-title">Risk Thresholds</h2></div>
+  <div class="card-body">
+    <div class="req-grid" style="gap:20px;">
+      <div>
+        <label class="form-label">Attendance Threshold (%)</label>
+        <div class="input-wrap" style="margin-top:6px;">
+          <i class="fa-solid fa-percent input-icon"></i>
+          <input class="form-input" type="number" value="50" min="0" max="100">
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Tutorial Score Threshold</label>
+        <div class="input-wrap" style="margin-top:6px;">
+          <i class="fa-solid fa-book input-icon"></i>
+          <input class="form-input" type="number" value="50" min="0" max="100">
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:24px;">
+      <button class="btn-primary" onclick="alert('Settings saved!')">
+        <i class="fa-solid fa-floppy-disk"></i> Save Settings
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
