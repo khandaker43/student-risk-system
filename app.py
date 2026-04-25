@@ -116,14 +116,21 @@ def upload():
         students_data    = []
         at_risk_students = []
 
+        def get_col(row, *names):
+            for name in names:
+                val = row.get(name)
+                if val is not None and str(val).strip() != '':
+                    return val
+            return ''
+
         for _, row in df.iterrows():
             student = {
-                "id":         str(row.get("Student_ID", row.get("student_id", ""))),
-                "name":       str(row.get("Name",       row.get("name", ""))),
-                "subject":    str(row.get("Subject",    row.get("subject", ""))),
-                "attendance": float(row.get("Attendance", row.get("attendance", 0))),
-                "tutorials":  float(row.get("Tutorials",  row.get("tutorials", 0))),
-                "assessment": str(row.get("Assessment",   row.get("assessment", "Not Done"))),
+                "id":         str(get_col(row, 'Student_ID', 'student_id', 'ID', 'id', 'StudentID', 'student id')),
+                "name":       str(get_col(row, 'Name', 'name', 'Student_Name', 'student_name', 'full_name', 'FullName')),
+                "subject":    str(get_col(row, 'Subject', 'subject', 'Course', 'course', 'Subject_Code', 'subject_code')),
+                "attendance": float(get_col(row, 'Attendance', 'attendance', 'Att', 'att', 'attendance_%', 'Attendance_%') or 0),
+                "tutorials":  float(get_col(row, 'Tutorials', 'tutorials', 'Tutorial', 'tutorial', 'Tut', 'tut', 'tutorial_score') or 0),
+                "assessment": str(get_col(row, 'Assessment', 'assessment', 'Assess', 'assess', 'assessment_result') or 'Not Done'),
                 "status":     "Safe",
                 "reasons":    []
             }
