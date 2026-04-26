@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Student Detail{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ student.name }}</h1>
+    <p class="page-subtitle">Student ID: {{ student.id }}</p>
+  </div>
+  <a href="{{ url_for('at_risk') }}" class="btn-ghost"><i class="fa-solid fa-arrow-left"></i> Back</a>
+</div>
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Subject</span>
+      <div class="stat-icon-wrap stat-icon-blue"><i class="fa-solid fa-book"></i></div>
+    </div>
+    <div class="stat-value" style="font-size:1.4rem">{{ student.subject }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Attendance</span>
+      <div class="stat-icon-wrap {% if student.attendance < 50 %}stat-icon-red{% else %}stat-icon-green{% endif %}">
+        <i class="fa-solid fa-calendar"></i>
+      </div>
+    </div>
+    <div class="stat-value {% if student.attendance < 50 %}stat-value-red{% else %}stat-value-green{% endif %}">{{ student.attendance }}%</div>
+    <div class="stat-meta">{% if student.attendance < 50 %}Below threshold{% else %}Acceptable{% endif %}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Tutorial Score</span>
+      <div class="stat-icon-wrap {% if student.tutorials < 50 %}stat-icon-red{% else %}stat-icon-green{% endif %}">
+        <i class="fa-solid fa-chalkboard"></i>
+      </div>
+    </div>
+    <div class="stat-value {% if student.tutorials < 50 %}stat-value-red{% else %}stat-value-green{% endif %}">{{ student.tutorials }}</div>
+    <div class="stat-meta">{% if student.tutorials < 50 %}Below threshold{% else %}Acceptable{% endif %}</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-header"><h2 class="card-title">Student Summary</h2></div>
+  <div class="card-body">
+    <div class="req-grid" style="gap:24px;">
+      <div>
+        <span class="stat-label">Status</span><br>
+        <span class="status-pill {% if student.status == 'At Risk' %}pill-risk{% else %}pill-safe{% endif %}" style="margin-top:8px;display:inline-flex">
+          {% if student.status == 'At Risk' %}<i class="fa-solid fa-triangle-exclamation"></i>{% else %}<i class="fa-solid fa-circle-check"></i>{% endif %}
+          {{ student.status }}
+        </span>
+      </div>
+      <div>
+        <span class="stat-label">Assessment</span><br>
+        <span class="assess-tag {% if student.assessment != 'Done' %}assess-bad{% endif %}" style="margin-top:8px;display:inline-block">{{ student.assessment }}</span>
+      </div>
+      <div>
+        <span class="stat-label">Risk Reasons</span><br>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
+          {% if student.reasons %}
+            {% for r in student.reasons %}
+            <span class="reason-tag reason-{{ r|lower|replace(' ','-') }}"><i class="fa-solid fa-flag"></i> {{ r }}</span>
+            {% endfor %}
+          {% else %}
+            <span style="color:#22c55e;font-weight:600;">✓ No risk factors</span>
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        <span class="stat-label">Actions</span><br>
+        <div style="margin-top:8px;display:flex;gap:10px;">
+          <a href="{{ url_for('send_alert', student_id=student.id) }}" class="btn-danger-outline">
+            <i class="fa-solid fa-envelope"></i> Send Alert
+          </a>
+          <a href="{{ url_for('at_risk') }}" class="btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Back to At Risk
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

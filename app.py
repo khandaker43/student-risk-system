@@ -250,6 +250,24 @@ def settings():
     return render_template("settings.html")
 
 
+# ================= STUDENT DETAIL =================
+@app.route("/student/<student_id>")
+def student_detail(student_id):
+    student = next((s for s in students_data if str(s['id']) == str(student_id)), None)
+    if not student:
+        flash("Student not found.", "danger")
+        return redirect(url_for('results'))
+    return render_template('student_detail.html', student=student)
+
+
+@app.route("/send-alert/<student_id>")
+def send_alert(student_id):
+    student = next((s for s in students_data if str(s['id']) == str(student_id)), None)
+    if student:
+        flash(f"Alert sent successfully for {student['name']}.", "success")
+    return redirect(url_for('at_risk'))
+
+
 # ================= RUN =================
 if __name__ == "__main__":
     app.run(debug=True)

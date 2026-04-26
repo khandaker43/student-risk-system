@@ -274,5 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
     .profile-logout:hover { background:#fee2e2 !important; }
   `;
   document.head.appendChild(style);
+  
 
 });
