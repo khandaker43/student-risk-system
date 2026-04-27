@@ -1,9 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import pandas as pd
 import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 app.secret_key = "koi-risk-system-2024"
+
+SENDER_EMAIL    = "koisystem.alerts@gmail.com"
+SENDER_PASSWORD = "your_app_password_here"
+RECIPIENT_EMAIL = "mmonibah3@gmail.com"
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -131,6 +138,7 @@ def upload():
                 "attendance": float(get_col(row, 'Attendance', 'attendance', 'Att', 'att', 'attendance_%', 'Attendance_%') or 0),
                 "tutorials":  float(get_col(row, 'Tutorials', 'tutorials', 'Tutorial', 'tutorial', 'Tut', 'tut', 'tutorial_score') or 0),
                 "assessment": str(get_col(row, 'Assessment', 'assessment', 'Assess', 'assess', 'assessment_result') or 'Not Done'),
+                "email":      str(get_col(row, 'Email', 'email', 'Student_Email', 'student_email', 'E-mail') or ''),
                 "status":     "Safe",
                 "reasons":    []
             }
@@ -251,20 +259,62 @@ def settings():
 
 
 # ================= STUDENT DETAIL =================
-@app.route("/student/<student_id>")
+@app.route("/student/<path:student_id>")
 def student_detail(student_id):
-    student = next((s for s in students_data if str(s['id']) == str(student_id)), None)
+    student = next((s for s in students_data if str(s['id']).strip() == str(student_id).strip()), None)
     if not student:
-        flash("Student not found.", "danger")
-        return redirect(url_for('results'))
+        flash(f"Student {student_id} not found. Please upload data first.", "danger")
+        return redirect(url_for('at_risk'))
     return render_template('student_detail.html', student=student)
 
 
-@app.route("/send-alert/<student_id>")
+@app.route("/send-alert/<path:student_id>")
 def send_alert(student_id):
-    student = next((s for s in students_data if str(s['id']) == str(student_id)), None)
-    if student:
-        flash(f"Alert sent successfully for {student['name']}.", "success")
+    student = next((s for s in students_data if str(s['id']).strip() == str(student_id).strip()), None)
+    if not student:
+        flash("Student not found.", "danger")
+        return redirect(url_for('at_risk'))
+    try:
+        student_email = student.get('email', '') or RECIPIENT_EMAIL
+        msg = MIMEMultipart()
+        msg['From']    = SENDER_EMAIL
+        msg['To']      = student_email
+        msg['Subject'] = f"Academic Alert: Action Required — {student['subject']}"
+        body = f"""
+Dear {student['name']},
+
+We are writing to inform you that you have been identified as at-risk
+in your current subject based on your academic performance.
+
+─────────────────────────────
+YOUR ACADEMIC STATUS
+─────────────────────────────
+Student ID:     {student['id']}
+Subject:        {student['subject']}
+Attendance:     {student['attendance']}%
+Tutorial Score: {student['tutorials']}
+Assessment:     {student['assessment']}
+Risk Reasons:   {', '.join(student['reasons'])}
+─────────────────────────────
+
+Please contact your academic coordinator immediately to discuss
+your progress and arrange additional support.
+
+Failure to address these issues may affect your academic standing.
+
+Regards,
+KOI Academic Support Team
+King's Own Institute
+        """
+        msg.attach(MIMEText(body, 'plain'))
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.sendmail(SENDER_EMAIL, student_email, msg.as_string())
+        server.quit()
+        flash(f"✓ Alert email sent to {student['name']} at {student_email}.", "success")
+    except Exception as e:
+        flash(f"✗ Email failed: {str(e)}", "danger")
     return redirect(url_for('at_risk'))
 
 
