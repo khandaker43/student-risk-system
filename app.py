@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.secret_key = "koi-risk-system-2024"
 
 SENDER_EMAIL    = "koisystem.alerts@gmail.com"
-SENDER_PASSWORD = "your_app_password_here"
+SENDER_PASSWORD = "mbkl rdyn ywpd ipvw"
 RECIPIENT_EMAIL = "mmonibah3@gmail.com"
 
 UPLOAD_FOLDER = "uploads"
