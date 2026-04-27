@@ -8,9 +8,9 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 app.secret_key = "koi-risk-system-2024"
 
-SENDER_EMAIL    = "koisystem.alerts@gmail.com"
-SENDER_PASSWORD = "mbkl rdyn ywpd ipvw"
-RECIPIENT_EMAIL = "mmonibah3@gmail.com"
+SENDER_EMAIL    = "mmonibah3@gmail.com"
+SENDER_PASSWORD = "mbklrdynywpdipvw"
+RECIPIENT_EMAIL = "mmonibah19@gmail.com"
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
