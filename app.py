@@ -8,8 +8,8 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 app.secret_key = "koi-risk-system-2024"
 
-SENDER_EMAIL    = "mmonibah3@gmail.com"
-SENDER_PASSWORD = "mbklrdynywpdipvw"
+SENDER_EMAIL    = "risksystem78@gmail.com"
+SENDER_PASSWORD = "cdmnewtvfzfkkayf"
 RECIPIENT_EMAIL = "mmonibah19@gmail.com"
 
 UPLOAD_FOLDER = "uploads"
