@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Profile</h1>
+    <p class="page-subtitle">Account information and settings</p>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card" style="grid-column: span 1;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 0;">
+      <div style="width:80px;height:80px;background:linear-gradient(135deg,#1e3a8a,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:1.2rem;font-weight:700;">{{ session.get('user_name', 'Admin User') }}</div>
+        <div style="font-size:.85rem;color:#64748b;margin-top:4px;">{{ session.get('user_email', 'admin@koi.edu') }}</div>
+        <div style="margin-top:8px;"><span class="status-pill pill-safe">{{ session.get('user_role', 'Admin') }}</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h2 class="card-title">Account Details</h2></div>
+  <div class="card-body">
+    <div class="req-grid" style="gap:24px;">
+      <div><span class="stat-label">Full Name</span><div class="input-wrap" style="margin-top:8px;"><i class="fa-solid fa-user input-icon"></i><input class="form-input" type="text" value="{{ session.get('user_name', 'Admin User') }}" readonly></div></div>
+      <div><span class="stat-label">Email Address</span><div class="input-wrap" style="margin-top:8px;"><i class="fa-regular fa-envelope input-icon"></i><input class="form-input" type="text" value="{{ session.get('user_email', 'admin@koi.edu') }}" readonly></div></div>
+      <div><span class="stat-label">Role</span><div class="input-wrap" style="margin-top:8px;"><i class="fa-solid fa-id-badge input-icon"></i><input class="form-input" type="text" value="{{ session.get('user_role', 'Admin') }}" readonly></div></div>
+      <div><span class="stat-label">Actions</span><div style="margin-top:8px;display:flex;gap:10px;"><a href="{{ url_for('logout') }}" class="btn-danger-outline"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a></div></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

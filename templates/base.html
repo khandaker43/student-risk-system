@@ -68,7 +68,9 @@
       </div>
       <div class="topbar-right">
         <button class="icon-btn"><i class="fa-solid fa-bell"></i><span class="notif-dot"></span></button>
-        <div class="topbar-avatar"><i class="fa-solid fa-user"></i></div>
+        <a href="{{ url_for('profile') }}" class="topbar-avatar" title="My Profile">
+          <i class="fa-solid fa-user"></i>
+        </a>
       </div>
     </header>
 

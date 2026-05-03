@@ -8,6 +8,7 @@
     <p class="page-subtitle">All enrolled student records</p>
   </div>
   <a href="{{ url_for('upload') }}" class="btn-primary"><i class="fa-solid fa-plus"></i> Upload New</a>
+  <a href="/export/csv" class="btn-ghost"><i class="fa-solid fa-download"></i> Export CSV</a>
 </div>
 
 <!-- Filters -->
@@ -49,7 +50,7 @@
           {% for s in students %}
           <tr data-status="{% if s.status == 'At Risk' %}at-risk{% else %}safe{% endif %}" data-subject="{{ s.subject }}">
             <td class="td-id">{{ s.id }}</td>
-            <td class="td-name">{{ s.name }}</td>
+            <td class="td-name"><a href="/student/{{ s.id }}" style="color:var(--primary-light);font-weight:600;">{{ s.name }}</a></td>
             <td><span class="subject-badge">{{ s.subject }}</span></td>
             <td>
               <div class="score-wrap">
@@ -86,7 +87,7 @@
           ] %}
           <tr data-status="{% if status == 'At Risk' %}at-risk{% else %}safe{% endif %}" data-subject="{{ subj }}">
             <td class="td-id">{{ sid }}</td>
-            <td class="td-name">{{ name }}</td>
+            <td class="td-name"><a href="/student/{{ sid }}" style="color:var(--primary-light);font-weight:600;">{{ name }}</a></td>
             <td><span class="subject-badge">{{ subj }}</span></td>
             <td>
               <div class="score-wrap">

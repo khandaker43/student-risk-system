@@ -8,6 +8,7 @@
     <p class="page-subtitle">Students requiring immediate academic intervention</p>
   </div>
   <a href="{{ url_for('report') }}" class="btn-danger-outline"><i class="fa-solid fa-file-export"></i> Export Report</a>
+  <a href="/export/atrisk/csv" class="btn-ghost"><i class="fa-solid fa-download"></i> Export At-Risk CSV</a>
 </div>
 
 <!-- Alert banner -->
@@ -75,8 +76,8 @@
             <td><span class="assess-tag assess-bad">{{ s.assessment }}</span></td>
             <td><span class="reason-tag reason-{{ s.reason|lower|replace(' ','-') }}"><i class="fa-solid fa-flag"></i> {{ s.reason }}</span></td>
             <td class="action-btns">
-              <button class="tbl-btn" title="Send alert"><i class="fa-solid fa-envelope"></i></button>
-              <button class="tbl-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+              <a href="/send-alert/{{ s.id }}" class="tbl-btn" title="Send email alert"><i class="fa-solid fa-envelope"></i></a>
+              <a href="/student/{{ s.id }}" class="tbl-btn" title="View details"><i class="fa-solid fa-eye"></i></a>
             </td>
           </tr>
           {% endfor %}
@@ -107,8 +108,8 @@
             <td><span class="assess-tag {% if assess == 'Not Done' %}assess-bad{% endif %}">{{ assess }}</span></td>
             <td><span class="reason-tag reason-{{ reason|lower|replace(' ','-') }}"><i class="fa-solid fa-flag"></i> {{ reason }}</span></td>
             <td class="action-btns">
-              <button class="tbl-btn" title="Send alert"><i class="fa-solid fa-envelope"></i></button>
-              <button class="tbl-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+              <a href="/send-alert/{{ sid }}" class="tbl-btn" title="Send email alert"><i class="fa-solid fa-envelope"></i></a>
+              <a href="/student/{{ sid }}" class="tbl-btn" title="View details"><i class="fa-solid fa-eye"></i></a>
             </td>
           </tr>
           {% endfor %}

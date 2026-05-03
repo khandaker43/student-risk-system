@@ -1,9 +1,17 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
+import csv
+import io
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import pandas as pd
 import os
 
 app = Flask(__name__)
 app.secret_key = "koi-risk-system-2024"
+
+SENDER_EMAIL = "mmonibah3@gmail.com"
+SENDER_PASSWORD = "mbklrdynywpdipvw"
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -131,6 +139,7 @@ def upload():
                 "attendance": float(get_col(row, 'Attendance', 'attendance', 'Att', 'att', 'attendance_%', 'Attendance_%') or 0),
                 "tutorials":  float(get_col(row, 'Tutorials', 'tutorials', 'Tutorial', 'tutorial', 'Tut', 'tut', 'tutorial_score') or 0),
                 "assessment": str(get_col(row, 'Assessment', 'assessment', 'Assess', 'assess', 'assessment_result') or 'Not Done'),
+                "email":      str(get_col(row, 'Email', 'email', 'Student_Email', 'student_email') or ''),
                 "status":     "Safe",
                 "reasons":    []
             }
@@ -248,6 +257,107 @@ def notifications():
 @app.route("/settings")
 def settings():
     return render_template("settings.html")
+
+
+# ================= EXPORT CSV =================
+@app.route("/export/csv")
+def export_csv():
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Student ID', 'Name', 'Subject', 'Attendance', 'Tutorials', 'Assessment', 'Status', 'Reasons'])
+    for s in students_data:
+        writer.writerow([s['id'], s['name'], s['subject'], s['attendance'], s['tutorials'], s['assessment'], s['status'], ', '.join(s['reasons'])])
+    output.seek(0)
+    return Response(output, mimetype='text/csv', headers={"Content-Disposition": "attachment;filename=KOI_Student_Report.csv"})
+
+@app.route("/export/atrisk/csv")
+def export_atrisk_csv():
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Student ID', 'Name', 'Subject', 'Attendance', 'Tutorials', 'Assessment', 'Risk Reason'])
+    for s in at_risk_students:
+        writer.writerow([s['id'], s['name'], s['subject'], s['attendance'], s['tutorials'], s['assessment'], ', '.join(s['reasons'])])
+    output.seek(0)
+    return Response(output, mimetype='text/csv', headers={"Content-Disposition": "attachment;filename=KOI_AtRisk_Report.csv"})
+
+
+# ================= STUDENT DETAIL =================
+@app.route("/student/<student_id>")
+def student_detail(student_id):
+    student = next((s for s in students_data if str(s['id']) == str(student_id)), None)
+    if not student:
+        return redirect(url_for('results'))
+    return render_template('student_detail.html', student=student)
+
+
+# ================= SEND ALERT =================
+@app.route("/send-alert/<path:student_id>")
+def send_alert(student_id):
+    student = next((s for s in students_data if str(s['id']).strip() == str(student_id).strip()), None)
+    if not student:
+        flash("Student not found.", "danger")
+        return redirect(url_for('at_risk'))
+    try:
+        student_email = student.get('email', '')
+        if not student_email:
+            flash(f"No email found for {student['name']}.", "danger")
+            return redirect(url_for('at_risk'))
+        msg = MIMEMultipart()
+        msg['From']    = SENDER_EMAIL
+        msg['To']      = student_email
+        msg['Subject'] = f"Academic Alert: Action Required — {student['subject']}"
+        body = f"""
+Dear {student['name']},
+
+You have been identified as at-risk in your current subject.
+
+Student ID:     {student['id']}
+Subject:        {student['subject']}
+Attendance:     {student['attendance']}%
+Tutorial Score: {student['tutorials']}
+Assessment:     {student['assessment']}
+Risk Reasons:   {', '.join(student['reasons'])}
+
+Please contact your academic coordinator immediately.
+
+Regards,
+KOI Academic Support Team
+        """
+        msg.attach(MIMEText(body, 'plain'))
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.sendmail(SENDER_EMAIL, student_email, msg.as_string())
+        server.quit()
+        flash(f"✓ Email alert sent to {student['name']} at {student_email}.", "success")
+    except Exception as e:
+        flash(f"✗ Email failed: {str(e)}", "danger")
+    return redirect(url_for('at_risk'))
+
+
+# ================= PROFILE =================
+@app.route("/profile")
+def profile():
+    return render_template('profile.html')
+
+
+# ================= SIGNUP =================
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        fullname = request.form.get("fullname", "")
+        email    = request.form.get("email", "")
+        password = request.form.get("password", "")
+        role     = request.form.get("role", "admin")
+        if fullname and email and password:
+            session["logged_in"]  = True
+            session["user_email"] = email
+            session["user_name"]  = fullname
+            session["user_role"]  = role
+            flash(f"Welcome {fullname}! Account created successfully.", "success")
+            return redirect(url_for("dashboard"))
+        flash("Please fill all fields.", "danger")
+    return redirect(url_for("login"))
 
 
 # ================= RUN =================
