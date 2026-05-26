@@ -44,6 +44,9 @@
       <a href="{{ url_for('notifications') }}" class="nav-item {% if request.endpoint == 'notifications' %}active{% endif %}">
         <i class="fa-solid fa-bell"></i><span>Notifications</span>
       </a>
+      <a href="{{ url_for('email_status') }}" class="nav-item {% if request.endpoint == 'email_status' %}active{% endif %}">
+        <i class="fa-solid fa-envelope-open-text"></i><span>Email Status</span>
+      </a>
       <a href="{{ url_for('settings') }}" class="nav-item {% if request.endpoint == 'settings' %}active{% endif %}">
         <i class="fa-solid fa-gear"></i><span>Settings</span>
       </a>

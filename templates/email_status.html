@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Email Status{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Email Tracking</h1>
+    <p class="page-subtitle">Track whether at-risk students have read their alert emails</p>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Total Sent</span>
+      <div class="stat-icon-wrap stat-icon-blue"><i class="fa-solid fa-envelope"></i></div>
+    </div>
+    <div class="stat-value">{{ tracking|length }}</div>
+    <div class="stat-meta">Emails sent this session</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Read</span>
+      <div class="stat-icon-wrap stat-icon-green"><i class="fa-solid fa-envelope-open"></i></div>
+    </div>
+    <div class="stat-value stat-value-green">{{ tracking.values()|selectattr('read')|list|length }}</div>
+    <div class="stat-meta">Students who opened email</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <span class="stat-label">Unread</span>
+      <div class="stat-icon-wrap stat-icon-red"><i class="fa-solid fa-envelope"></i></div>
+    </div>
+    <div class="stat-value stat-value-red">{{ tracking.values()|rejectattr('read')|list|length }}</div>
+    <div class="stat-meta">Students who have not opened</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h2 class="card-title">Email Delivery & Read Status</h2></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>Name</th>
+          <th>Subject</th>
+          <th>Email</th>
+          <th>Sent At</th>
+          <th>Status</th>
+          <th>Read At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if tracking %}
+          {% for tid, info in tracking.items() %}
+          <tr>
+            <td class="td-id">{{ info.student_id }}</td>
+            <td class="td-name">{{ info.student_name }}</td>
+            <td><span class="subject-badge">{{ info.subject }}</span></td>
+            <td style="font-size:.8rem;color:var(--text-2)">{{ info.email }}</td>
+            <td style="font-size:.8rem;color:var(--text-2)">{{ info.sent_at }}</td>
+            <td>
+              {% if info.read %}
+                <span class="status-pill pill-safe"><i class="fa-solid fa-envelope-open"></i> Read</span>
+              {% else %}
+                <span class="status-pill pill-risk"><i class="fa-solid fa-envelope"></i> Unread</span>
+              {% endif %}
+            </td>
+            <td style="font-size:.8rem;color:var(--text-2)">{{ info.read_at if info.read_at else '—' }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-2)">No emails sent yet. Send alerts from the At Risk page.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

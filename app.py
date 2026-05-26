@@ -18,6 +18,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Global data store
 students_data = []
 at_risk_students = []
+email_tracking = {}
 
 
 # ── Helper: subject_data builder ──────────────────────────────
@@ -306,7 +307,34 @@ Regards,
 KOI Academic Support Team
 King's Own Institute
         """
+        tracking_id = str(student['id']).replace(' ', '_')
+        email_tracking[tracking_id] = {
+            'student_id': student['id'],
+            'student_name': student['name'],
+            'email': student.get('email', ''),
+            'subject': student['subject'],
+            'sent_at': __import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M'),
+            'read': False,
+            'read_at': None
+        }
+        html_body = f"""
+    <html><body>
+    <p>Dear {student['name']},</p>
+    <p>You have been identified as at-risk in <strong>{student['subject']}</strong>.</p>
+    <table style="border:1px solid #ccc;padding:10px;width:100%;">
+    <tr><td><strong>Student ID:</strong></td><td>{student['id']}</td></tr>
+    <tr><td><strong>Attendance:</strong></td><td>{student['attendance']}%</td></tr>
+    <tr><td><strong>Tutorial Score:</strong></td><td>{student['tutorials']}</td></tr>
+    <tr><td><strong>Assessment:</strong></td><td>{student['assessment']}</td></tr>
+    <tr><td><strong>Risk Reasons:</strong></td><td>{', '.join(student['reasons'])}</td></tr>
+    </table>
+    <p>Please contact your academic coordinator immediately.</p>
+    <p>Regards,<br>KOI Academic Support Team</p>
+    <img src="{request.host_url}track/{tracking_id}" width="1" height="1" style="display:none"/>
+    </body></html>
+    """
         msg.attach(MIMEText(body, 'plain'))
+        msg.attach(MIMEText(html_body, 'html'))
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
@@ -316,6 +344,22 @@ King's Own Institute
     except Exception as e:
         flash(f"✗ Email failed: {str(e)}", "danger")
     return redirect(url_for('at_risk'))
+
+
+@app.route("/track/<tracking_id>")
+def track_email(tracking_id):
+    if tracking_id in email_tracking:
+        email_tracking[tracking_id]['read'] = True
+        email_tracking[tracking_id]['read_at'] = __import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M')
+    from flask import send_file
+    import io
+    pixel = b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00\x21\xf9\x04\x00\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b'
+    return send_file(io.BytesIO(pixel), mimetype='image/gif')
+
+
+@app.route("/email-status")
+def email_status():
+    return render_template('email_status.html', tracking=email_tracking)
 
 
 # ================= RUN =================
